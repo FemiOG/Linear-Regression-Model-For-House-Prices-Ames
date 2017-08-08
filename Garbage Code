@@ -1,0 +1,60 @@
+# train_prediction = pd.Series(np.exp(lm.predict(X)))
+# train_prediction = lm.predict(X)
+# pred = pd.DataFrame(abs(train_prediction))
+# plt.scatter(train_prediction, (train_prediction - Y), c='b')
+# plt.title('Residual plot')
+
+# plt.scatter(pred, Y, c = "blue", marker = "s", label = "Training data")
+# plt.title("Linear regression")
+# plt.xlabel("Predicted values")
+# plt.ylabel("Real values")
+# plt.legend(loc = "upper left")
+# plt.show()
+
+from sklearn.linear_model import RidgeCV
+
+scaler = MinMaxScaler()
+scaler.fit(X_train)
+X_train_scaled = scaler.transform(X)
+X_test_scaled = scaler.transform(X_test)
+
+ridge = RidgeCV(alphas = [0.01, 0.03, 0.06, 0.1, 0.3, 0.6, 1, 3, 6, 10, 30, 60])
+ridge.fit(X_train_scaled, y)
+alpha = ridge.alpha_
+print("Best alpha :", alpha)
+
+print("Try again for more precision with alphas centered around " + str(alpha))
+ridge = RidgeCV(alphas = [alpha * .6, alpha * .65, alpha * .7, alpha * .75, alpha * .8, alpha * .85, 
+                          alpha * .9, alpha * .95, alpha, alpha * 1.05, alpha * 1.1, alpha * 1.15,
+                          alpha * 1.25, alpha * 1.3, alpha * 1.35, alpha * 1.4], cv = 10)
+ridge.fit(X_train_scaled, y)
+alpha = ridge.alpha_
+print("Best alpha :", alpha)
+train_prediction = ridge.predict(X_train_scaled)
+print("Root Mean squared error: %.2f" % sqrt(mean_squared_error((y), train_prediction)))
+print(ridge.score(X_train_scaled, y))
+
+dataset['OverallQualCond'] = dataset['OverallQual'] * dataset['OverallCond']
+dataset['ExterQualCond'] = dataset['ExterQual'] * dataset['ExterCond']
+dataset['BsmtQualCond'] = dataset['BsmtQual'] * dataset['BsmtCond']
+dataset['GarageRating'] = dataset['GarageCars'] * dataset['GarageFinish']
+dataset['TotalBath'] = dataset['FullBath'] + dataset['HalfBath'] 
+dataset['TotalLivArea'] = dataset['GrLivArea'] + dataset['1stFlrSF'] 
+dataset['AgeSold'] = dataset['YearBuilt'] - dataset['YrSold']
+
+dataset[['SalePrice','BsmtQualCond','OverallQualCond','ExterQualCond','GarageRating','TotalBath','TotalLivArea','AgeSold']].corr()['SalePrice'].sort_values(ascending =False)
+
+df['GarageRating'] = df['GarageCars'] * df['GarageFinish']
+df['TotalBath'] = df['FullBath'] + df['HalfBath']
+df['TotalLivArea'] = df['GrLivArea'] + df['1stFlrSF']
+
+df.dtypes.unique()
+
+# The logarithm of 0 is undefined, so we must translate the values by a small amount above 0 to apply the the logarithm successfully.
+
+# df[numerical_features] = df[numerical_features].apply(lambda x: np.log(x+1))
+
+# print("Root Mean Squared Error (Log) on training set: %.5f" % log_rmse(lm, X, y))
+# print scores.mean()
+# print("R2 Score on training set: %.4f" % lm.score(X,y))
+# print("Cross Validation Score on training set: %.4f" % scores.mean())
